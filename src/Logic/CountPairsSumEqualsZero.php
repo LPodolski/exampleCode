@@ -4,7 +4,7 @@ namespace Logic;
 
 class CountPairsSumEqualsZero
 {
-    private $numbers = array();
+    private $numbers = [];
 
     public function count(array $numbers): int
     {
