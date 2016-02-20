@@ -6,6 +6,7 @@ use DTO\Order\Order;
 use DTO\Product\Dessert;
 use DTO\Product\Lunch;
 use DTO\Product\MainCourse;
+use DTO\Product\SpecialOffer;
 use Factory\OrderCalculateTotalFactory;
 
 class OrderCalculateTotalTest extends \PHPUnit_Framework_TestCase
@@ -18,10 +19,7 @@ class OrderCalculateTotalTest extends \PHPUnit_Framework_TestCase
         $mainCourse->setPrice(2500);
         $order->addElement($mainCourse);
 
-        $orderCalculateTotal = $this->getOrderCalculateTotal();
-        $total = $orderCalculateTotal->getTotalWithDiscounts($order);
-
-        static::assertEquals(2500, $total);
+        static::assertEquals(2500, $this->getTotalWithDiscounts($order));
     }
 
     public function testIfLunchDiscountDeducted()
@@ -37,10 +35,7 @@ class OrderCalculateTotalTest extends \PHPUnit_Framework_TestCase
         $lunch->setDessert($dessert);
         $order->addElement($lunch);
 
-        $orderCalculateTotal = $this->getOrderCalculateTotal();
-        $total = $orderCalculateTotal->getTotalWithDiscounts($order);
-
-        static::assertEquals(4000, $total);
+        static::assertEquals(4000, $this->getTotalWithDiscounts($order));
     }
 
     public function testIfLunchDiscountDeductedOnlyFromLunch()
@@ -60,20 +55,14 @@ class OrderCalculateTotalTest extends \PHPUnit_Framework_TestCase
         $mainCourse->setPrice(2500);
         $order->addElement($mainCourse);
 
-        $orderCalculateTotal = $this->getOrderCalculateTotal();
-        $total = $orderCalculateTotal->getTotalWithDiscounts($order);
-
-        static::assertEquals(6500, $total);
+        static::assertEquals(6500, $this->getTotalWithDiscounts($order));
     }
 
     public function testIfEmptyOrderReturnsZero()
     {
         $order = new Order();
 
-        $orderCalculateTotal = $this->getOrderCalculateTotal();
-        $total = $orderCalculateTotal->getTotalWithDiscounts($order);
-
-        static::assertEquals(0, $total);
+        static::assertEquals(0, $this->getTotalWithDiscounts($order));
     }
 
     public function testIfCorrectSumWhenWithoutDiscounts()
@@ -87,14 +76,42 @@ class OrderCalculateTotalTest extends \PHPUnit_Framework_TestCase
         $dessert->setPrice(2000);
         $order->addElement($dessert);
 
-        $orderCalculateTotal = $this->getOrderCalculateTotal();
-        $total = $orderCalculateTotal->getTotalWithDiscounts($order);
-
-        static::assertEquals(5000, $total);
+        static::assertEquals(5000, $this->getTotalWithDiscounts($order));
     }
 
-    private function getOrderCalculateTotal()
+    public function testOnlySpecialOfferDiscount()
     {
-        return (new OrderCalculateTotalFactory())->make();
+        $order = new Order();
+
+        $lunch = new SpecialOffer();
+        $mainCourse = new MainCourse();
+        $mainCourse->setPrice(3000);
+        $lunch->setMainCourse($mainCourse);
+        $order->addElement($lunch);
+
+        static::assertEquals(2850, $this->getTotalWithDiscounts($order));
+    }
+
+    public function testSpecialOfferWithElementWithoutDiscount()
+    {
+        $order = new Order();
+
+        $lunch = new SpecialOffer();
+        $mainCourse = new MainCourse();
+        $mainCourse->setPrice(3000);
+        $lunch->setMainCourse($mainCourse);
+        $order->addElement($lunch);
+
+        $mainCourse = new MainCourse();
+        $mainCourse->setPrice(2500);
+        $order->addElement($mainCourse);
+
+        static::assertEquals(5350, $this->getTotalWithDiscounts($order));
+    }
+
+    private function getTotalWithDiscounts(Order $order)
+    {
+        $orderCalculateTotal = (new OrderCalculateTotalFactory())->make();
+        return $orderCalculateTotal->getTotalWithDiscounts($order);
     }
 }
