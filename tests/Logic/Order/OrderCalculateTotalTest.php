@@ -109,6 +109,17 @@ class OrderCalculateTotalTest extends \PHPUnit_Framework_TestCase
         static::assertEquals(5350, $this->getTotalWithDiscounts($order));
     }
 
+    public function testOrderAmountDiscount()
+    {
+        $order = new Order();
+
+        $mainCourse = new MainCourse();
+        $mainCourse->setPrice(10000);
+        $order->addElement($mainCourse);
+
+        static::assertEquals(8500, $this->getTotalWithDiscounts($order));
+    }
+
     private function getTotalWithDiscounts(Order $order)
     {
         $orderCalculateTotal = (new OrderCalculateTotalFactory())->make();

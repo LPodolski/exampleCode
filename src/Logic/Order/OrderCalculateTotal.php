@@ -18,12 +18,41 @@ class OrderCalculateTotal
 
     public function getTotalWithDiscounts(Order $order): int
     {
-        $this->applyDiscounts($order);
+        $this->setOrderPriceAfterDiscounts($order);
 
-        return $this->getTotal($order);
+        return $order->getPriceAfterDiscount();
     }
 
-    public function getTotal(Order $order): int
+    private function setOrderPriceAfterDiscounts(Order $order)
+    {
+        $this->setPriceWithoutDiscountsForOrder($order);
+        $this->applyDiscountsToOrderElements($order);
+
+        $this->setPriceWithDiscountsForOrder($order);
+        $this->applyDiscountsToOrder($order);
+    }
+
+    private function setPriceWithoutDiscountsForOrder(Order $order)
+    {
+        $order->setPrice($this->getTotalWithoutDiscountsOfOrderElements($order));
+    }
+
+    private function getTotalWithoutDiscountsOfOrderElements(Order $order)
+    {
+        $sum = 0;
+        foreach ($order->getElements() as $orderElement) {
+            $sum += $orderElement->getPrice();
+        }
+
+        return $sum;
+    }
+
+    private function setPriceWithDiscountsForOrder(Order $order)
+    {
+        $order->setPriceAfterDiscount($this->getTotalOfOrderElements($order));
+    }
+
+    public function getTotalOfOrderElements(Order $order): int
     {
         $sum = 0;
         foreach ($order->getElements() as $orderElement) {
@@ -33,7 +62,12 @@ class OrderCalculateTotal
         return $sum;
     }
 
-    private function applyDiscounts(Order $order)
+    private function applyDiscountsToOrderElements(Order $order)
+    {
+        $this->applyDiscount->applyDiscountToOrderElements($order);
+    }
+
+    private function applyDiscountsToOrder(Order $order)
     {
         $this->applyDiscount->applyDiscountToOrder($order);
     }

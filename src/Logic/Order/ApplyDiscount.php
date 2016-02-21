@@ -17,15 +17,15 @@ class ApplyDiscount
 
     public function applyDiscountToOrder(Order $order)
     {
-        $this->applyDiscountToOrderElements($order->getElements());
+        $this->applyDiscountToOrderElement($order);
     }
 
     /**
-     * @param OrderElementInterface[] $orderElements
+     * @param Order $order
      */
-    public function applyDiscountToOrderElements(array $orderElements)
+    public function applyDiscountToOrderElements(Order $order)
     {
-        foreach ($orderElements as $orderElement) {
+        foreach ($order->getElements() as $orderElement) {
             $this->applyDiscountToOrderElement($orderElement);
         }
     }
